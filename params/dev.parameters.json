@@ -1,0 +1,98 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location":{"value": "westeurope"},
+    "lbName": {"value": "internalLoadBalancer-weu-01"},
+
+    "windowsVM":{
+        "value": {
+            "scriptUri": "https://storagebicepexample1004.blob.core.windows.net/scripts/setup-iis.ps1?sp=r&st=2026-10-05T15:33:26Z&se=2026-10-19T23:48:26Z&spr=https&sv=2026-02-06&sr=b&sig=u0jJgunEgw0h%2FFdHSGmaP5JhN9AihFhh87YVLZvRj6c%3D",
+            "vmName": "swazbiceptest",
+            "nicName": "nic-biceptest",
+            "vmSize":"Standard_b8as_v2",
+            "count": 2,
+            "adminUsername": "azureadmin"
+        }
+    },
+    "linuxWebConfig": {
+        "value": {
+            "baseName": "slaztest-app",
+            "vmSize": "Standard_b2ats_v2",
+            "count": 1,
+            "adminUsername": "linuxadmin"
+    }},
+
+    "StorageAccountName": {"value": "storagebicepexample1005"},
+    
+    "vnet":{
+        "value": {
+            "name":"vnet-dev-weu",
+            "addressPrefixes":["10.0.0.0/16"],
+            "subnets":[
+                {"name":"snet-dev-weu-web-01","prefix": "10.0.0.0/24"},
+                {"name":"snet-dev-weu-db-01","prefix": "10.0.1.0/24"},
+                {"name":"AzureBastionSubnet","prefix": "10.0.2.0/24"}
+            ]
+        }
+    },
+
+    "testvnet": {
+        "value": {
+            "name": "vnet-test-weu",
+            "addressPrefixes": ["10.1.0.0/16"],
+            "subnets": [
+                { "name": "snet-test-weu-app", "prefix": "10.1.0.0/24" }
+            ]
+        }
+    },
+
+    "nsg":{
+        "value": {
+            "name": "nsg-dev-weu-01",
+            "rules":[
+                {
+                    "name": "in-allow-rdp-admin",
+                    "properties": {
+                        "description": "Allow RDP for admin access.",
+                        "protocol": "Tcp",
+                        "sourcePortRange": "*",
+                        "destinationPortRange": "3389",
+                        "sourceAddressPrefix": "147.161.146.113",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "priority": 400,
+                        "direction": "Inbound"
+                    }
+                },
+                {
+                    
+                    "name": "in-allow-http-from-internet-to-10-0-0-4",
+                    "properties": {
+                        "access": "Allow",
+                        "destinationAddressPrefix": "10.0.0.4",
+                        "destinationPortRange": "80",
+                        "direction": "Inbound",
+                        "priority": 410,
+                        "protocol": "Tcp",
+                        "sourceAddressPrefix": "Internet",
+                        "sourcePortRange": "*"
+                    }
+                }
+            ]
+        }
+    },
+
+    "publicIp": {
+        "value":{
+            "name": "bastionPublicIp"
+        }
+    },
+    "bastion": {
+        "value": {
+            "pipName": "bastionPublicIp",
+            "name": "bastion-weu-01"
+        }
+    }
+    }  
+  }
